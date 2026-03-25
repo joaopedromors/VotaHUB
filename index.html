@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Votação - Linguagens de Programação</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header__title">VotaHub</h1>
+            <p class="header__subtitle">Seu hub completo para votações inteligentes.</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Configuração de Cenários -->
+            <section class="config-section">
+                <div class="config-tabs">
+                    <button class="config-tab config-tab--active" data-tab="create">
+                        + Novo Cenário
+                    </button>
+                    <button class="config-tab" data-tab="select">
+                        Cenários Salvos
+                    </button>
+                </div>
+
+                <!-- Create Scenario Tab -->
+                <div id="createTab" class="config-tab-content config-tab-content--active">
+                    <form id="scenarioForm" class="scenario-form">
+                        <div class="form-group">
+                            <label for="scenarioTitle" class="form-label">Pergunta da Votação</label>
+                            <input 
+                                type="text" 
+                                id="scenarioTitle" 
+                                class="form-input"
+                                placeholder="Ex: Qual linguagem você prefere?"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Opções de Voto</label>
+                            <div id="optionsContainer" class="options-input-container">
+                                <div class="option-input-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-input option-input-field"
+                                        placeholder="Opção 1"
+                                        data-option="1"
+                                    >
+                                    <button type="button" class="btn btn--small btn--remove-option" style="display: none;">×</button>
+                                </div>
+                                <div class="option-input-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-input option-input-field"
+                                        placeholder="Opção 2"
+                                        data-option="2"
+                                    >
+                                    <button type="button" class="btn btn--small btn--remove-option" style="display: none;">×</button>
+                                </div>
+                            </div>
+                            <button type="button" id="addOptionBtn" class="btn btn--secondary btn--small">
+                                + Adicionar Opção
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn btn--primary btn--full">
+                            Criar Cenário
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Select Scenario Tab -->
+                <div id="selectTab" class="config-tab-content">
+                    <div id="scenariosList" class="scenarios-list">
+                        <p class="empty-message">Nenhum cenário salvo ainda.</p>
+                    </div>
+                </div>
+            </section>
+            <!-- Voting Section -->
+            <section id="votingSection" class="voting-section" style="display: none;">
+                <div class="voting-header">
+                    <h2 id="votingTitle" class="voting-title">Selecione uma opção acima para começar</h2>
+                    <div class="voting-actions">
+                        <button id="resetVotesBtn" class="btn btn--small btn--danger" title="Zerar votos">🔄 Zerar</button>
+                        <button id="endVotingBtn" class="btn btn--small btn--secondary" title="Encerrar votação e ir para resultados">🏁 Encerrar</button>
+                        <button id="backBtn" class="btn btn--small btn--secondary">← Voltar</button>
+                    </div>
+                </div>
+
+                <form class="voting-form" id="votingForm">
+                    <!-- Opcoes de Voto (renderizadas dinamicamente) -->
+                    <div id="votingOptions" class="options-container">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn--primary">
+                        Enviar Voto
+                    </button>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="message message--success" style="display: none;">
+                    ✓ Voto registrado com sucesso!
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="message message--error" style="display: none;">
+                    ✕ Ocorreu um erro ao registrar o voto.
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h2 class="results__title">Resultado das Votações</h2>
+                    <button id="backBtn2" class="btn btn--small btn--secondary">← Voltar</button>
+                </div>
+                
+                <div class="results-container" id="resultsContainer">
+                </div>
+
+                <div class="results-footer">
+                    <p class="total-votes" id="totalVotes">Total de votos: <strong>0</strong></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer__text">VotaHub By: João Pedro. Gustavo Henrike.  Victor Dias. © 2026</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">Excluir Cenário</h3>
+            <p id="modalMessage" class="modal-message">Tem certeza que deseja excluir este cenário?</p>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn btn--danger">Excluir</button>
+                <button id="cancelDeleteBtn" class="btn btn--secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Empate -->
+    <div id="tieModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">🎯 Empate Detectado!</h3>
+            <p id="tieMessage" class="modal-message">Houve um empate entre as opções. Um segundo turno será criado automaticamente.</p>
+            <p id="tieOptionsMessage" class="modal-options"></p>
+            <div class="modal-actions">
+                <button id="startSecondRoundBtn" class="btn btn--primary">Iniciar Segundo Turno</button>
+                <button id="skipSecondRoundBtn" class="btn btn--secondary">Pular</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
